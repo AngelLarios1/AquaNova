@@ -1,31 +1,65 @@
-import { useState } from 'react';
-import { AquaNova_backend } from 'declarations/AquaNova_backend';
+import { Client, InternetIdentity } from '@bundly/ic-core-js';
+import { IcpConnectContextProvider } from '@bundly/ic-react';
+import {
+  createBrowserRouter,
+  RouterProvider,
+} from "react-router-dom";
+import { Home } from './Home';
+import { FibraCapilar } from './FibraCapilar';
+import { Contaminantes } from './Contaminantes';
+import { Cultivos } from './Cultivos';
+import { Sensor } from './Sensor';
+import { Arcilla } from '../Arcilla';
+import Desoname from './Desoname';
 
-function App() {
-  const [greeting, setGreeting] = useState('');
+export default function App() {
+  const router = createBrowserRouter([
+    {
+      path: "/",
+      element: <Home/>,
+    },
+    {
+      path: "/fibra-capilar",
+      element: <FibraCapilar />
+    },
+    {
+      path: "/contaminantes",
+      element: <Contaminantes />
+    },
+    {
+      path: "/cultivos",
+      element: <Cultivos />
+    },
+    {
+      path: "/sensor",
+      element: <Sensor />
+    },
+    {
+      path: "/arcilla",
+      element: <Arcilla />
+    },
+    {
+      path: '/desonamexd',
+      element: <Desoname />
+    }
+  ]);
 
-  function handleSubmit(event) {
-    event.preventDefault();
-    const name = event.target.elements.name.value;
-    AquaNova_backend.greet(name).then((greeting) => {
-      setGreeting(greeting);
-    });
-    return false;
-  }
+  const client = Client.create({
+    restCanisters: {
+      backend: {
+        baseUrl: process.env.REACT_APP_API_REST_URL
+      }
+    },
+    providers: [
+      new InternetIdentity({
+        providerUrl: process.env.REACT_APP_INTERNET_IDENTITY_URL
+      })
+    ]
+  });
 
   return (
-    <main>
-      <img src="/logo2.svg" alt="DFINITY logo" />
-      <br />
-      <br />
-      <form action="#" onSubmit={handleSubmit}>
-        <label htmlFor="name">Enter your name: &nbsp;</label>
-        <input id="name" alt="Name" type="text" />
-        <button type="submit">Click Me!</button>
-      </form>
-      <section id="greeting">{greeting}</section>
-    </main>
-  );
+    <IcpConnectContextProvider client={client}>
+      <RouterProvider router={router} />
+    </IcpConnectContextProvider>
+  )
 }
-
-export default App;
